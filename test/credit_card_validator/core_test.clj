@@ -34,4 +34,15 @@
       (let [card "5188360002354029"
             result (core/card-from-number card)]
         (is (= "mastercard"
+               (:type result))))))
+  (testing "amex"
+    (testing "starts with 34"
+      (let [card "3488360002354029"
+            result (core/card-from-number card)]
+        (is (= "amex"
+               (:type result)))))
+    (testing "starts with 37"
+      (let [card "3788360002354029"
+            result (core/card-from-number card)]
+        (is (= "amex"
                (:type result)))))))
