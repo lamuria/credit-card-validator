@@ -2,8 +2,7 @@
 
 (def default-format #"\d{1,4}")
 
-(defn cards
-  []
+(def cards
   [{:type "visa"
     :pattern #"^4"
     :format default-format
@@ -27,10 +26,17 @@
   "Returns a card from number"
   [card-number]
   (some #(when (re-seq (:pattern %) card-number) %)
-        (cards)))
+        cards))
 
 (defn card-from-type
   "Returns a card from type"
   [card-type]
   (some #(when (= (:type %) card-type) %)
-       (cards)))
+       cards))
+
+(defn validate-cvc
+  "Validates cvc number"
+  [cvc-number card-type]
+  (let [cvc-number-length (count cvc-number)
+        card (card-from-type card-type)]
+    (some #(= cvc-number-length %) (:cvc-lenght card))))
