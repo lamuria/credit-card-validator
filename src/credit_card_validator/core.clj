@@ -2,7 +2,8 @@
 
 (def default-format #"\d{1,4}")
 
-(def cards
+(defn cards
+  []
   [{:type "visa"
     :pattern #"^4"
     :format default-format
@@ -23,7 +24,13 @@
     :luhn true}])
 
 (defn card-from-number
-  "Returns type from number"
+  "Returns a card from number"
   [card-number]
   (some #(when (re-seq (:pattern %) card-number) %)
-              cards))
+        (cards)))
+
+(defn card-from-type
+  "Returns a card from type"
+  [card-type]
+  (some #(when (= (:type %) card-type) %)
+       (cards)))

@@ -1,4 +1,4 @@
-(ns credit-card-validator.core-test
+(ns credit-card-validator.card-from-number-test
   (:require [clojure.test :refer :all]
             [credit-card-validator.core :as core]))
 
