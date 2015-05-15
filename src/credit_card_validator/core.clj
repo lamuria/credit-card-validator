@@ -1,6 +1,7 @@
 (ns credit-card-validator.core
   (require [clj-time.core :as t]
-           [clj-time.format :as f]))
+           [clj-time.format :as f]
+           [result.core :as result]))
 
 (def default-format #"\d{1,4}")
 
@@ -50,13 +51,15 @@
   [date-format]
   (let [expiry-date (f/parse date-formatter date-format)
         current-date (f/parse date-formatter (f/unparse date-formatter (t/now)))]
-    (not (t/after? current-date expiry-date))))
+    (if (t/after? current-date expiry-date)
+      (result/failure)
+      (result/success))))
 
 (defn expiry-date-is-valid?
   [date-format]
   (if (re-matches date-regex date-format)
     (validate-expiry-date date-format)
-    (str "invalid date")))
+    (result/failure {:errors "invalid date"})))
 
 (defn to-number
   [string]
