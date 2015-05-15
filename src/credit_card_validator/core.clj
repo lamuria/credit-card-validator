@@ -1,6 +1,7 @@
 (ns credit-card-validator.core
   (require [clj-time.core :as t]
-           [clj-time.format :as f]))
+           [clj-time.format :as f]
+           [result.core :as result]))
 
 (def default-format #"\d{1,4}")
 
@@ -30,18 +31,31 @@
   (some #(when (re-seq (:pattern %) card-number) %)
         cards))
 
+(defn card-from-type-checker
+  [card-type]
+  (some #(when (= (:type %) card-type) %) cards))
+
 (defn card-from-type
   "Returns a card from type"
   [card-type]
-  (some #(when (= (:type %) card-type) %)
-       cards))
+  (let [card (card-from-type-checker card-type)]
+    (if (nil? card)
+      (result/failure)
+      (result/success card))))
+
+(defn cvc-checker
+  [card cvc-length]
+  (some #(= cvc-length %) (:cvc-lenght card)))
 
 (defn cvc-is-valid?
   "Validates cvc number"
   [cvc-number card-type]
   (let [cvc-number-length (count cvc-number)
-        card (card-from-type card-type)]
-    (some #(= cvc-number-length %) (:cvc-lenght card))))
+        card (card-from-type card-type)
+        result (cvc-checker card cvc-number-length)]
+    (if (nil? result)
+      (result/failure)
+      (result/success result))))
 
 (def date-formatter (f/formatter "MM/yyyy"))
 (def date-regex #"^(0[1-9]|1[0-2])/(19|2[0-1])\d{2}")
@@ -50,13 +64,15 @@
   [date-format]
   (let [expiry-date (f/parse date-formatter date-format)
         current-date (f/parse date-formatter (f/unparse date-formatter (t/now)))]
-    (not (t/after? current-date expiry-date))))
+    (if (t/after? current-date expiry-date)
+      (result/failure)
+      (result/success))))
 
 (defn expiry-date-is-valid?
   [date-format]
   (if (re-matches date-regex date-format)
     (validate-expiry-date date-format)
-    (str "invalid date")))
+    (result/failure {:errors "invalid date"})))
 
 (defn to-number
   [string]
@@ -78,11 +94,15 @@
         s2 (reduce + sum-digits-of-each)
         total (+ s1 s2)
         rest-division (rem total 10)]
-    (= 0 rest-division)))
+    (if (= 0 rest-division)
+      (result/success)
+      (result/failure))))
 
 (defn is-valid?
   [card-number cvc valid-date]
   (let [card (card-from-number card-number)
-        card-type (:type card)]
-    (and (cvc-is-valid? cvc card-type)
-         (luhn-checker card-number))))
+        card-type (:type card)
+        cvc-result (cvc-is-valid? cvc card-type)
+        luhn-result (luhn-checker card-number)
+        results [cvc-result luhn-result]]
+    (result/collection-succeeded? results)))
