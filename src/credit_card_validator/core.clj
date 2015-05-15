@@ -1,4 +1,6 @@
-(ns credit-card-validator.core)
+(ns credit-card-validator.core
+  (require [clj-time.core :as t]
+           [clj-time.format :as f]))
 
 (def default-format #"\d{1,4}")
 
@@ -34,12 +36,27 @@
   (some #(when (= (:type %) card-type) %)
        cards))
 
-(defn validate-cvc
+(defn cvc-is-valid?
   "Validates cvc number"
   [cvc-number card-type]
   (let [cvc-number-length (count cvc-number)
         card (card-from-type card-type)]
     (some #(= cvc-number-length %) (:cvc-lenght card))))
+
+(def date-formatter (f/formatter "MM/yyyy"))
+(def date-regex #"^(0[1-9]|1[0-2])/(19|2[0-1])\d{2}")
+
+(defn validate-expiry-date
+  [date-format]
+  (let [expiry-date (f/parse date-formatter date-format)
+        current-date (f/parse date-formatter (f/unparse date-formatter (t/now)))]
+    (not (t/after? current-date expiry-date))))
+
+(defn expiry-date-is-valid?
+  [date-format]
+  (if (re-matches date-regex date-format)
+    (validate-expiry-date date-format)
+    (str "invalid date")))
 
 (defn to-number
   [string]
@@ -62,3 +79,10 @@
         total (+ s1 s2)
         rest-division (rem total 10)]
     (= 0 rest-division)))
+
+(defn is-valid?
+  [card-number cvc valid-date]
+  (let [card (card-from-number card-number)
+        card-type (:type card)]
+    (and (cvc-is-valid? cvc card-type)
+         (luhn-checker card-number))))
