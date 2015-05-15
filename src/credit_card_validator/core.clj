@@ -81,7 +81,9 @@
         s2 (reduce + sum-digits-of-each)
         total (+ s1 s2)
         rest-division (rem total 10)]
-    (= 0 rest-division)))
+    (if (= 0 rest-division)
+      (result/success)
+      (result/failure))))
 
 (defn is-valid?
   [card-number cvc valid-date]
