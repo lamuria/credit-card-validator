@@ -31,18 +31,31 @@
   (some #(when (re-seq (:pattern %) card-number) %)
         cards))
 
+(defn card-from-type-checker
+  [card-type]
+  (some #(when (= (:type %) card-type) %) cards))
+
 (defn card-from-type
   "Returns a card from type"
   [card-type]
-  (some #(when (= (:type %) card-type) %)
-       cards))
+  (let [card (card-from-type-checker card-type)]
+    (if (nil? card)
+      (result/failure)
+      (result/success card))))
+
+(defn cvc-checker
+  [card cvc-length]
+  (some #(= cvc-length %) (:cvc-lenght card)))
 
 (defn cvc-is-valid?
   "Validates cvc number"
   [cvc-number card-type]
   (let [cvc-number-length (count cvc-number)
-        card (card-from-type card-type)]
-    (some #(= cvc-number-length %) (:cvc-lenght card))))
+        card (card-from-type card-type)
+        result (cvc-checker card cvc-number-length)]
+    (if (nil? result)
+      (result/failure)
+      (result/success result))))
 
 (def date-formatter (f/formatter "MM/yyyy"))
 (def date-regex #"^(0[1-9]|1[0-2])/(19|2[0-1])\d{2}")
