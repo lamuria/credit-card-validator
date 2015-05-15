@@ -104,5 +104,6 @@
         card-type (:type card)
         cvc-result (cvc-is-valid? cvc card-type)
         luhn-result (luhn-checker card-number)
-        results [cvc-result luhn-result]]
+        expiry-date-result (expiry-date-is-valid? valid-date)
+        results [cvc-result luhn-result expiry-date-result]]
     (result/collection-succeeded? results)))

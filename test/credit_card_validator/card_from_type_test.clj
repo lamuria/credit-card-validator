@@ -8,7 +8,6 @@
     (let [card-type "visa"
           result (core/card-from-type card-type)]
       (is (result/succeeded? result))
-      (println "NUBU: " result)
       (is (= card-type
              (:type result)))))
 
