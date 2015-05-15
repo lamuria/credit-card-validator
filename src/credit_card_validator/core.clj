@@ -101,6 +101,8 @@
 (defn is-valid?
   [card-number cvc valid-date]
   (let [card (card-from-number card-number)
-        card-type (:type card)]
-    (and (cvc-is-valid? cvc card-type)
-         (luhn-checker card-number))))
+        card-type (:type card)
+        cvc-result (cvc-is-valid? cvc card-type)
+        luhn-result (luhn-checker card-number)
+        results [cvc-result luhn-result]]
+    (result/collection-succeeded? results)))
