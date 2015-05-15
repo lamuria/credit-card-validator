@@ -44,12 +44,19 @@
     (some #(= cvc-number-length %) (:cvc-lenght card))))
 
 (def date-formatter (f/formatter "MM/yyyy"))
+(def date-regex #"^(0[1-9]|1[0-2])/(19|2[0-1])\d{2}")
 
-(defn expiry-date-is-valid?
+(defn validate-expiry-date
   [date-format]
   (let [expiry-date (f/parse date-formatter date-format)
         current-date (f/parse date-formatter (f/unparse date-formatter (t/now)))]
     (not (t/after? current-date expiry-date))))
+
+(defn expiry-date-is-valid?
+  [date-format]
+  (if (re-matches date-regex date-format)
+    (validate-expiry-date date-format)
+    (str "invalid date")))
 
 (defn to-number
   [string]

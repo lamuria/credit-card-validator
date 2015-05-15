@@ -20,4 +20,9 @@
     (testing "1 month before"
       (let [date (t/minus (t/now) (t/months 1))
             date-format (f/unparse core/date-formatter date)]
-        (is (not (core/expiry-date-is-valid? date-format)))))))
+        (is (not (core/expiry-date-is-valid? date-format)))))
+
+    (testing "invalid format"
+      (let [date-format "20/1121"]
+        (is (= "invalid date"
+               (core/expiry-date-is-valid? date-format)))))))
