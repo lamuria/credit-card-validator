@@ -1,14 +1,5 @@
-# credit-card-validator
+# Credit Card Validator [![Build Status](https://travis-ci.org/lamuria/credit-card-validator.svg?branch=add-travis)](https://travis-ci.org/lamuria/credit-card-validator)
 
-A Clojure library designed to ... well, that part is up to you.
+[![Clojars Project](http://clojars.org/credit-card-validator/latest-version.svg)]
 
-## Usage
-
-FIXME
-
-## License
-
-Copyright © 2015 FIXME
-
-Distributed under the Eclipse Public License either version 1.0 or (at
-your option) any later version.
+Simple credit card validator
